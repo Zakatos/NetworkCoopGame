@@ -8,6 +8,8 @@
 
 
 class USkeletalMeshComponent;
+class UDamageType;
+class UParticleSystem;
 
 UCLASS()
 class NETWORKCOOPGAME_API ASWeapon : public AActor
@@ -29,6 +31,17 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Components")
 	USkeletalMeshComponent* MeshComp;
 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category = "Weapon")
+	TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly,Category = "Weapon")
+	FName MuzzleSocketName;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category = "Weapon")
+	UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category = "Weapon")
+	UParticleSystem* ImpactEffect;
 
 public:	
 	// Called every frame

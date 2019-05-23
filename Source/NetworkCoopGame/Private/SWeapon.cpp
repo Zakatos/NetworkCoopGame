@@ -4,6 +4,8 @@
 #include "SWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values
 ASWeapon::ASWeapon()
@@ -13,6 +15,8 @@ ASWeapon::ASWeapon()
 
     MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
+
+	MuzzleSocketName = "MuzzleSocket";
 }
 
 // Called when the game starts or when spawned
@@ -29,11 +33,13 @@ void ASWeapon::Fire()
 	if(myOwner)
 	{
 		FVector eyeLocation;
-		FRotator EyeRotation;
+		FRotator eyeRotation;
 
-		myOwner->GetActorEyesViewPoint(eyeLocation,EyeRotation);
+		myOwner->GetActorEyesViewPoint(eyeLocation,eyeRotation);
 
-		FVector TraceEnd = eyeLocation + (EyeRotation.Vector() * 1000);
+		FVector shotDirection = eyeRotation.Vector();
+
+		FVector traceEnd = eyeLocation + (shotDirection * 1000);
 
 		FCollisionQueryParams queryParams;
 		queryParams.AddIgnoredActor(myOwner);
@@ -41,16 +47,27 @@ void ASWeapon::Fire()
 		queryParams.bTraceComplex = true;
 
 		//Trace the world from pawn eyes to crosshair location
-		FHitResult Hit;
+		FHitResult hit;
 
-		if( GetWorld()->LineTraceSingleByChannel(Hit,eyeLocation,TraceEnd,ECC_Visibility,queryParams))
+		if( GetWorld()->LineTraceSingleByChannel(hit,eyeLocation,traceEnd,ECC_Visibility,queryParams))
 		{
 			//Blocking hit process damage
 
+			AActor* hitActor = hit.GetActor();
 
+			UGameplayStatics::ApplyPointDamage(hitActor,20.0f,shotDirection,hit,myOwner->GetInstigatorController(),this,DamageType);
+			if(ImpactEffect)		
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),ImpactEffect,hit.ImpactPoint,hit.ImpactNormal.Rotation());
+			}
 		}
 
-		DrawDebugLine(GetWorld(),eyeLocation,TraceEnd,FColor::White,false,1.0f,0,1.0f);
+		DrawDebugLine(GetWorld(),eyeLocation,traceEnd,FColor::White,false,1.0f,0,1.0f);
+
+		if(MuzzleEffect)
+		{
+			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect,MeshComp,MuzzleSocketName);
+		}
 	}
 
 	
