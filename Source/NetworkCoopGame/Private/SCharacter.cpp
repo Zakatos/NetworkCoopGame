@@ -6,6 +6,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "SWeapon.h"
+#include "Components/CapsuleComponent.h"
+#include "NetworkCoopGame.h"
+#include "Components/SHealthComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -18,6 +21,10 @@ ASCharacter::ASCharacter()
 	SpringArmComp->SetupAttachment(RootComponent);
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON,ECR_Ignore);
+
+	HealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
 		
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -27,6 +34,7 @@ ASCharacter::ASCharacter()
 	ZoomInterpSpeed = 20.0f;
 
 	WeaponAttachSocketName = "WeaponSocket";
+
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +55,8 @@ void ASCharacter::BeginPlay()
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetIncludingScale,WeaponAttachSocketName);
 	}
+
+	HealthComp->OnHealthChanged.AddDynamic(this,&ASCharacter::OnHealthChanged);
 
 }
 
@@ -82,11 +92,37 @@ void ASCharacter::EndZoom()
 }
 
 
-void ASCharacter::Fire()
+void ASCharacter::StartFire()
 {
 	if(CurrentWeapon)
 	{
-		CurrentWeapon->Fire();
+		CurrentWeapon->StartFire();
+	}
+}
+
+void ASCharacter::StopFire()
+{
+	if(CurrentWeapon)
+	{
+		CurrentWeapon->StopFire();
+	}
+}
+
+void ASCharacter::OnHealthChanged(USHealthComponent* OwningHealthComp,float Health,float HealthDelta,const class UDamageType*  DamageType, 
+	class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if(Health<= 0.0f && !bDied)
+	{
+		//Die
+		bDied = true;
+
+		GetMovementComponent()->StopMovementImmediately();
+
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		DetachFromControllerPendingDestroy();
+
+		SetLifeSpan(10.0f);
 	}
 }
 
@@ -125,7 +161,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Zoom",IE_Released,this,&ASCharacter::EndZoom);
 
-	PlayerInputComponent->BindAction("Fire",IE_Pressed,this,&ASCharacter::Fire);
+	PlayerInputComponent->BindAction("StartFire",IE_Pressed,this,&ASCharacter::StartFire);
+	PlayerInputComponent->BindAction("StartFire",IE_Released,this,&ASCharacter::StopFire);
 
 }
 

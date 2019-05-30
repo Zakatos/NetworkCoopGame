@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ASWeapon;
+class USHealthComponent;
 
 UCLASS()
 class NETWORKCOOPGAME_API ASCharacter : public ACharacter
@@ -41,6 +42,9 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Components")
 	USpringArmComponent* SpringArmComp;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Components")
+	USHealthComponent* HealthComp;
+
 	bool bWantsToZoom;
 	UPROPERTY(EditDefaultsOnly,Category = "Player")
 	float ZoomedFOV;
@@ -60,8 +64,17 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly,Category = "Player")
 	FName WeaponAttachSocketName;
 
-	void Fire();
+	void StartFire();
 
+	void StopFire();
+
+	UFUNCTION()
+	void OnHealthChanged(USHealthComponent* OwningHealthComp,float Health,float HealthDelta,const class UDamageType*  DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+
+	//Pawn died previously
+	UPROPERTY(BlueprintReadOnly,Category = "Player")
+	bool bDied;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

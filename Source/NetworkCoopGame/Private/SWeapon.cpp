@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "NetworkCoopGame.h"
+#include "TimerManager.h"
 
 
 static int32 DebugWeaponDrawing = 0;
@@ -26,8 +29,18 @@ ASWeapon::ASWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 
 	TracerTargetName = "Target";
+
+	BaseDamage = 20.0f;
+
+	RateOfFire = 600;
 }
 
+ void ASWeapon::BeginPlay()
+ {
+	 Super::BeginPlay();
+
+	 TimeBetweenShots = 60/RateOfFire;
+ }
 
 
  void ASWeapon::Fire()
@@ -50,6 +63,7 @@ ASWeapon::ASWeapon()
 		queryParams.AddIgnoredActor(myOwner);
 		queryParams.AddIgnoredActor(this);
 		queryParams.bTraceComplex = true;
+		queryParams.bReturnPhysicalMaterial = true;
 
 		//Particle "Target" Parameter
 		FVector tracerEndPoint = traceEnd;
@@ -57,16 +71,37 @@ ASWeapon::ASWeapon()
 		//Trace the world from pawn eyes to crosshair location
 		FHitResult hit;
 
-		if( GetWorld()->LineTraceSingleByChannel(hit,eyeLocation,traceEnd,ECC_Visibility,queryParams))
+		if( GetWorld()->LineTraceSingleByChannel(hit,eyeLocation,traceEnd,COLLISION_WEAPON,queryParams))
 		{
 			//Blocking hit process damage
 
 			AActor* hitActor = hit.GetActor();
+			EPhysicalSurface surfaceType = UPhysicalMaterial::DetermineSurfaceType(hit.PhysMaterial.Get());
 
-			UGameplayStatics::ApplyPointDamage(hitActor,20.0f,shotDirection,hit,myOwner->GetInstigatorController(),this,DamageType);
-			if(ImpactEffect)		
+			float actualDamage = BaseDamage;
+			if(surfaceType == SURFACE_FLESHVUNERABLE)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),ImpactEffect,hit.ImpactPoint,hit.ImpactNormal.Rotation());
+				actualDamage *= 4.0f;
+			}
+			UGameplayStatics::ApplyPointDamage(hitActor,actualDamage,shotDirection,hit,myOwner->GetInstigatorController(),this,DamageType);
+			
+			
+			UParticleSystem* selectedEffect = nullptr;
+
+			switch (surfaceType)
+			{
+			case SURFACE_FLESHDEFAULT:
+			case SURFACE_FLESHVUNERABLE:
+				selectedEffect = FleshImpactEffect;
+				break;
+			default:
+				selectedEffect = DefaultImpactEffect;
+				break;
+			}
+
+			if(selectedEffect)		
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),selectedEffect,hit.ImpactPoint,hit.ImpactNormal.Rotation());
 			}
 
 			tracerEndPoint = hit.ImpactPoint;
@@ -78,10 +113,26 @@ ASWeapon::ASWeapon()
 		}
 		
 		PlayFireEffect(tracerEndPoint);
+
+		LastFireTime = GetWorld()->TimeSeconds;
 	}
 
 	
 }
+
+ void ASWeapon::StartFire()
+ {
+	 float firstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds,0.0f);
+	 
+	 GetWorldTimerManager().SetTimer(TimeHandle_TimeBetweenShoots,this,&ASWeapon::Fire,TimeBetweenShots,true,firstDelay);
+ }
+
+ void ASWeapon::StopFire()
+ {
+	 GetWorldTimerManager().ClearTimer(TimeHandle_TimeBetweenShoots);
+
+ }
+
 
  void ASWeapon::PlayFireEffect(FVector TraceEnd)
  {
