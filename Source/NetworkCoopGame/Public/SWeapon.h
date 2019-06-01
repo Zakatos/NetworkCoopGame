@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
 #include "SWeapon.generated.h"
 
 
@@ -11,6 +12,22 @@ class USkeletalMeshComponent;
 class UDamageType;
 class UParticleSystem;
 class UCameraShake;
+
+//Contains single information of a single hitscan weapon
+USTRUCT()
+struct FHitScanTrace
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY()
+	TEnumAsByte<EPhysicalSurface> SurfaceType;
+
+	UPROPERTY()
+	FVector_NetQuantize TraceTo;
+
+};
+
 
 UCLASS()
 class NETWORKCOOPGAME_API ASWeapon : public AActor
@@ -27,6 +44,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	void PlayFireEffect(FVector TraceEnd);
+
+	void PlayImpactEffects(EPhysicalSurface SurfaceType,FVector ImpactPoint);
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Components")
 	USkeletalMeshComponent* MeshComp;
@@ -69,11 +88,18 @@ protected:
 	//Derived from rate of fire
 	float TimeBetweenShots;
 
+	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+	FHitScanTrace HitScanTrace;
 
+	UFUNCTION()
+	void OnRep_HitScanTrace();
 public:	
 
 	UFUNCTION(BlueprintCallable,Category = "Weapon")
 	virtual void Fire(); //Move to protected?
+
+	UFUNCTION(Server,Reliable,WithValidation)
+	void ServerFire();
 
 	void StartFire();
 

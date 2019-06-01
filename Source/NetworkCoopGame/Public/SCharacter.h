@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Net/UnrealNetwork.h"
 #include "SCharacter.generated.h"
+
 
 class UCameraComponent;
 class USpringArmComponent;
@@ -60,7 +62,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly,Category = "Player")
 	TSubclassOf<ASWeapon> StarterWeaponClass;
 
+	UPROPERTY(Replicated)
 	ASWeapon* CurrentWeapon;
+
 	UPROPERTY(VisibleDefaultsOnly,Category = "Player")
 	FName WeaponAttachSocketName;
 
@@ -71,10 +75,10 @@ protected:
 	UFUNCTION()
 	void OnHealthChanged(USHealthComponent* OwningHealthComp,float Health,float HealthDelta,const class UDamageType*  DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-
 	//Pawn died previously
 	UPROPERTY(BlueprintReadOnly,Category = "Player")
 	bool bDied;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
