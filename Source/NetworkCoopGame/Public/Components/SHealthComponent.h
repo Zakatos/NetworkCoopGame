@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "SHealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthCHangedSignature,USHealthComponent*,HealthComp,float,Health,float,HealthDelta,const class UDamageType*,  DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
@@ -22,7 +23,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly,Category = "Health Component")
+	UPROPERTY(Replicated,BlueprintReadOnly,Category = "Health Component")
 	float Health;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = "Health Component")

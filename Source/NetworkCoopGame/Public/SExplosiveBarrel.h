@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
 #include "SExplosiveBarrel.generated.h"
 
 class USHealthComponent;
@@ -49,7 +50,11 @@ protected:
 
 	void Explode(TArray<AActor*> ignoredActors);
 
+	UPROPERTY(ReplicatedUsing=OnRep_Exploded)
 	bool bExploded;
+
+	UFUNCTION()
+	void OnRep_Exploded();
 
 	UPROPERTY(EditDefaultsOnly,Category = "Barrel")
 	float BaseDamage;
@@ -59,8 +64,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly,Category = "Components")
 	UMaterialInterface* ExplodedMaterial;
-
-
 
 public:	
 
