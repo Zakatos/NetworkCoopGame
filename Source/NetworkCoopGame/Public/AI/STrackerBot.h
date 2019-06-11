@@ -30,6 +30,10 @@ protected:
 	UStaticMeshComponent* MeshComp;
 	UPROPERTY(VisibleDefaultsOnly,Category = "Components")
 	USHealthComponent* HealthComp;
+	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
+	UParticleSystem* ExplosionEffect;
+	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
+	USphereComponent* SphereComp;
 
 	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* OwningHealthComp,float Health,float HealthDelta,const class UDamageType*  DamageType, 
@@ -49,9 +53,38 @@ protected:
 	//Dynamic Material to Pulse on damage
 	UMaterialInstanceDynamic* MatInst;
 
+	void SelfDestruct();
+
+	bool bExploded;
+
+	bool bStartedSelfDestruction;
+	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
+	float ExplosionRadius;
+	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
+	float ExplosionDamage;
+	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
+	float SelfDamageInterval;
+
+	int32 PowerLevel;
+	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
+	float AllyDetectionRadius;
+
+	FTimerHandle TimerHandle_SelfDamage;
+
+
+	void DamageSelf();
+
+	void OnCheckNearbyAllies();
+
+	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
+	USoundCue* SelfDestructSound;
+	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
+	USoundCue* ExplodeSound;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 };
