@@ -174,10 +174,6 @@ void ASTrackerBot::OnCheckNearbyAllies()
 	for (FOverlapResult result : overlaps)
 	{
 		ASTrackerBot* bot = Cast<ASTrackerBot>(result.GetActor());
-		if(bot)
-		{
-			UE_LOG(LogTemp,Log,TEXT(" GAMIESE"));
-		}
 		if(bot && bot != this)
 		{
 			nrOfBots++;
@@ -237,6 +233,9 @@ void ASTrackerBot::Tick(float DeltaTime)
 
 void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
+
+	Super::NotifyActorBeginOverlap(OtherActor);
+
 	if (!bStartedSelfDestruction && !bExploded)
 	{
 		ASCharacter* playerPawn = Cast<ASCharacter>(OtherActor);
