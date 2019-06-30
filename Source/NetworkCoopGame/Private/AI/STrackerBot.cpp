@@ -172,7 +172,7 @@ void ASTrackerBot::OnCheckNearbyAllies()
 		if(bot && bot != this)
 		{
 			nrOfBots++;
-			UE_LOG(LogTemp,Log,TEXT(" Changed: %s"),*FString::SanitizeFloat(nrOfBots));
+			//UE_LOG(LogTemp,Log,TEXT(" Changed: %s"),*FString::SanitizeFloat(nrOfBots));
 		}
 	}
 
