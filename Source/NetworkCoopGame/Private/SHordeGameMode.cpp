@@ -74,7 +74,7 @@ void ASHordeGameMode::CheckWaveState()
 {
 	bool bIsPreparingForWave = GetWorldTimerManager().IsTimerActive(TimerHandle_NextWaveStart);
 
-
+	
 	if(NrOfBotsToSpawn > 0 || bIsPreparingForWave)
 	{
 		return;
