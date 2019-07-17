@@ -18,6 +18,9 @@ class NETWORKCOOPGAME_API USHealthComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	USHealthComponent();
+	//Todo add replicated if team switching is to be implemented
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category = "Health Component")
+	uint8 TeamNum;
 
 protected:
 	// Called when the game starts
@@ -46,4 +49,6 @@ public:
 	FOnHealthCHangedSignature OnHealthChanged;
 	UFUNCTION(BlueprintCallable,Category = "HealthComponent")
 	void Heal(float healamount);
+	UFUNCTION(BlueprintCallable,BlueprintPure,Category = "HealthComponent")
+	static bool IsFriendly(AActor* ActorA,AActor* ActorB);
 };

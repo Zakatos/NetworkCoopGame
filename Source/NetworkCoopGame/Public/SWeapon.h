@@ -87,6 +87,9 @@ protected:
 
 	//Derived from rate of fire
 	float TimeBetweenShots;
+	//Bullet spread is in degrees
+	UPROPERTY(EditDefaultsOnly,Category = "Weapon", meta = (ClampMin = 0.0f))
+	float BulletSpread;
 
 	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
 	FHitScanTrace HitScanTrace;
