@@ -48,7 +48,7 @@ void USHealthComponent::OnRep_Health(float oldhealth)
 
 void USHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float  Damage, const class UDamageType*  DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	if(Damage <= 0 || bIsDead)
+	if(Damage <= 0.0f || bIsDead)
 	{
 		return;
 	}
@@ -100,7 +100,7 @@ void USHealthComponent::Heal(float healamount)
 bool USHealthComponent::IsFriendly(AActor* ActorA,AActor* ActorB)
 {
 
-	if(ActorA || ActorB)
+	if(ActorA == nullptr|| ActorB == nullptr)
 	{
 		//Assume friendly
 		return true;
@@ -108,7 +108,7 @@ bool USHealthComponent::IsFriendly(AActor* ActorA,AActor* ActorB)
 
 	USHealthComponent* healthCompA = Cast<USHealthComponent>(ActorA->GetComponentByClass(USHealthComponent::StaticClass()));
 
-	USHealthComponent* healthCompB = Cast<USHealthComponent>(ActorA->GetComponentByClass(USHealthComponent::StaticClass()));
+	USHealthComponent* healthCompB = Cast<USHealthComponent>(ActorB->GetComponentByClass(USHealthComponent::StaticClass()));
 
 	if(healthCompA == nullptr || healthCompB == nullptr)
 	{

@@ -44,8 +44,8 @@ ASTrackerBot::ASTrackerBot()
 	MovementForce = 1000;
 	RequiredDistanceToTarget = 100;
 
-	ExplosionDamage = 40;
-	ExplosionRadius = 200;
+	ExplosionDamage = 50;
+	ExplosionRadius = 350;
 
 	SelfDamageInterval = 0.25f;
 
