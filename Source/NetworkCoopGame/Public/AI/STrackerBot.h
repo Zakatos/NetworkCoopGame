@@ -39,6 +39,8 @@ protected:
 	void HandleTakeDamage(USHealthComponent* OwningHealthComp,float Health,float HealthDelta,const class UDamageType*  DamageType, 
 		class AController* InstigatedBy, AActor* DamageCauser);
 
+	void RefreshPath();
+
 	FVector GetNextPathPoint();
 
 	//Next Path in Navigation
@@ -71,6 +73,7 @@ protected:
 
 	FTimerHandle TimerHandle_SelfDamage;
 
+	FTimerHandle TimerHandle_RefreshPath;
 
 	void DamageSelf();
 
@@ -81,10 +84,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly,Category = "Tracker Bot")
 	USoundCue* ExplodeSound;
 
+	
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
-
 };
