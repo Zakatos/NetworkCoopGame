@@ -6,6 +6,7 @@
 #include "SGameState.h"
 #include "SPlayerState.h"
 #include "Components/SHealthComponent.h"
+#include "SCharacter.h"
 
 
 
@@ -157,11 +158,16 @@ void ASHordeGameMode::RestartDeadPlayers()
 	for(FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator();It;++It)
 	{
 		APlayerController* PC = It->Get();
+
 		if(PC && PC->GetPawn() == nullptr)
 		{
 			RestartPlayer(PC);
 		}
 
+		//Reseting PlayerPawn's Variables
+		ASCharacter* playerPawn = Cast<ASCharacter>(PC->GetPawn());
+		
+		playerPawn->OnDeath.Broadcast();
 	}
 }
 

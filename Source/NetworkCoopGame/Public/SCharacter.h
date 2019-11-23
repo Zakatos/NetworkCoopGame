@@ -13,6 +13,8 @@ class USpringArmComponent;
 class ASWeapon;
 class USHealthComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+
 UCLASS()
 class NETWORKCOOPGAME_API ASCharacter : public ACharacter
 {
@@ -84,6 +86,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual FVector GetPawnViewLocation() const override;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnDeathSignature OnDeath;
 
 	UFUNCTION(BlueprintCallable,Category = "Player")
 	void StartFire();

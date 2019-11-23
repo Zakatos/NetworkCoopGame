@@ -128,6 +128,8 @@ void ASCharacter::OnHealthChanged(USHealthComponent* OwningHealthComp,float Heal
 		DetachFromControllerPendingDestroy();
 
 		SetLifeSpan(10.0f);
+
+		OnDeath.Broadcast();
 	}
 }
 
